@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.env
+*.log
+# assignment brief and private working notes are not part of the submission
+*.pdf
+plan.md
