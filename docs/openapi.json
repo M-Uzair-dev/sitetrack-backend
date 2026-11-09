@@ -1,0 +1,2350 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create an account and start a session.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Log in with email + password. A failure never reveals whether the email is registered.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Exchange a refresh token for a new access token + rotated refresh token.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "End the current session. Its access and refresh tokens stop working immediately.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The caller's own profile.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/projects": {
+      "post": {
+        "operationId": "ProjectsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a project. The creator becomes its first project admin.",
+        "tags": [
+          "projects"
+        ]
+      },
+      "get": {
+        "operationId": "ProjectsController_list",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches project name (contains) or ID (e.g. \"PRJ-004\").",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasLateTasks",
+            "required": false,
+            "in": "query",
+            "description": "Only projects that have at least one late task.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "startDate",
+                "percentDone",
+                "lateTasks"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Projects screen: every project the caller can access, with task stats.",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}": {
+      "get": {
+        "operationId": "ProjectsController_get",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      },
+      "patch": {
+        "operationId": "ProjectsController_update",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project admins only.",
+        "tags": [
+          "projects"
+        ]
+      },
+      "delete": {
+        "operationId": "ProjectsController_remove",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project admins only. Soft delete; the ID is never reused.",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/members": {
+      "get": {
+        "operationId": "MembersController_list",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Members screen: members (with admin flag) and unanswered invitations.",
+        "tags": [
+          "members"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/members/{userId}": {
+      "patch": {
+        "operationId": "MembersController_setAdmin",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAdminDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project admins only: make a member a project admin (or revoke admin, keeping at least one).",
+        "tags": [
+          "members"
+        ]
+      },
+      "delete": {
+        "operationId": "MembersController_remove",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project admins only. Takes effect on the removed person's next request.",
+        "tags": [
+          "members"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/invitations": {
+      "post": {
+        "operationId": "MembersController_invite",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project admins only: invite a registered user.",
+        "tags": [
+          "members"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/invitations/{invitationId}": {
+      "delete": {
+        "operationId": "MembersController_withdraw",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project admins only: withdraw an unanswered invitation.",
+        "tags": [
+          "members"
+        ]
+      }
+    },
+    "/api/v1/me/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Notifications screen: the caller's project invitations, newest first.",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/me/notifications/unread-count": {
+      "get": {
+        "operationId": "NotificationsController_unread",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Unread badge shown on every page.",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/me/notifications/read": {
+      "post": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkReadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/me/invitations/{invitationId}/accept": {
+      "post": {
+        "operationId": "NotificationsController_accept",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Only the invited person can accept. They join the project on accept.",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/me/invitations/{invitationId}/reject": {
+      "post": {
+        "operationId": "NotificationsController_reject",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks": {
+      "get": {
+        "operationId": "TasksController_list",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated: NOT_STARTED,IN_PROGRESS,DONE",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "NOT_STARTED",
+                  "IN_PROGRESS",
+                  "DONE"
+                ]
+              }
+            }
+          },
+          {
+            "name": "late",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "blocked",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Planned date range start (YYYY-MM-DD). Tasks whose planned period overlaps [from, to] match.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Matches task name or ID (contains, case-insensitive).",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "code",
+                "name",
+                "startDate",
+                "endDate",
+                "dependentsCount"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project: Tasks screen. Late/Blocked are derived from today's date and the dependency graph.",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "post": {
+        "operationId": "TasksController_create",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a task; optionally with dependencies (codes of tasks in the same project).",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks/{taskCode}": {
+      "get": {
+        "operationId": "TasksController_detail",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Task details: allowed actions plus every task it waits on / that waits on it, with distance.",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "patch": {
+        "operationId": "TasksController_update",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edit name and planned dates. Status changes only through the action endpoints.",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "delete": {
+        "operationId": "TasksController_remove",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a task and its dependency links. Its ID is never reused.",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks/{taskCode}/start": {
+      "post": {
+        "operationId": "TasksController_start",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Not started -> In progress. Allowed only when every task it waits on is done.",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks/{taskCode}/complete": {
+      "post": {
+        "operationId": "TasksController_complete",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "In progress -> Done.",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks/{taskCode}/reopen": {
+      "post": {
+        "operationId": "TasksController_reopen",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Done -> In progress. Allowed only while no task that waits on it has started.",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks/{taskCode}/dependencies": {
+      "post": {
+        "operationId": "TasksController_addDependency",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddDependencyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Make this task wait on another task of the same project. Cycles are rejected (409).",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/tasks/{taskCode}/dependencies/{dependsOnCode}": {
+      "delete": {
+        "operationId": "TasksController_removeDependency",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dependsOnCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/materials": {
+      "get": {
+        "operationId": "MaterialsController_list",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "category"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The shared catalogue, visible to everyone logged in.",
+        "tags": [
+          "materials"
+        ]
+      },
+      "post": {
+        "operationId": "MaterialsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMaterialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Company store managers and SuperAdmins only.",
+        "tags": [
+          "materials"
+        ]
+      }
+    },
+    "/api/v1/materials/categories": {
+      "get": {
+        "operationId": "MaterialsController_categories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Distinct categories (for filter dropdowns).",
+        "tags": [
+          "materials"
+        ]
+      }
+    },
+    "/api/v1/materials/{id}": {
+      "get": {
+        "operationId": "MaterialsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "materials"
+        ]
+      },
+      "patch": {
+        "operationId": "MaterialsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMaterialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "materials"
+        ]
+      },
+      "delete": {
+        "operationId": "MaterialsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "materials"
+        ]
+      }
+    },
+    "/api/v1/company-store/stock": {
+      "get": {
+        "operationId": "CompanyStoreController_stock",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated: OUT_OF_STOCK,LOW_STOCK,AVAILABLE",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "OUT_OF_STOCK",
+                  "LOW_STOCK",
+                  "AVAILABLE"
+                ]
+              }
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "quantity",
+                "status"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Company store: Stock screen.",
+        "tags": [
+          "company store"
+        ]
+      },
+      "post": {
+        "operationId": "CompanyStoreController_addStock",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add stock arriving from a supplier.",
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/company-store/stock/{materialId}/reorder-point": {
+      "put": {
+        "operationId": "CompanyStoreController_reorderPoint",
+        "parameters": [
+          {
+            "name": "materialId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderPointDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/company-store/deliveries": {
+      "get": {
+        "operationId": "CompanyStoreController_deliveries",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": false,
+            "in": "query",
+            "description": "Company deliveries screen only: filter by project code.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TO_PROJECT",
+                "TO_COMPANY"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated: IN_TRANSIT,DELIVERED,REJECTED,CANCELLED",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "IN_TRANSIT",
+                  "DELIVERED",
+                  "REJECTED",
+                  "CANCELLED"
+                ]
+              }
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Sent on or after (YYYY-MM-DD).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "Sent on or before (YYYY-MM-DD).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Company store: Deliveries screen (all projects, newest first).",
+        "tags": [
+          "company store"
+        ]
+      },
+      "post": {
+        "operationId": "CompanyStoreController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyDeliveryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send material from the company store to a project store.",
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/company-store/deliveries/{id}": {
+      "get": {
+        "operationId": "CompanyStoreController_delivery",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/company-store/deliveries/{id}/record": {
+      "post": {
+        "operationId": "CompanyStoreController_record",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record a delivery coming back from a project: stock joins the company store.",
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/company-store/deliveries/{id}/reject": {
+      "post": {
+        "operationId": "CompanyStoreController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject a delivery coming back from a project: stock returns to the project store.",
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/company-store/deliveries/{id}/cancel": {
+      "post": {
+        "operationId": "CompanyStoreController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a delivery the company store sent that is still in transit.",
+        "tags": [
+          "company store"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/store": {
+      "get": {
+        "operationId": "ProjectStoreController_stock",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "quantity",
+                "lastDelivery"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project: Store screen.",
+        "tags": [
+          "project store"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/deliveries": {
+      "get": {
+        "operationId": "ProjectStoreController_deliveries",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectCode",
+            "required": false,
+            "in": "query",
+            "description": "Company deliveries screen only: filter by project code.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TO_PROJECT",
+                "TO_COMPANY"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated: IN_TRANSIT,DELIVERED,REJECTED,CANCELLED",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "IN_TRANSIT",
+                  "DELIVERED",
+                  "REJECTED",
+                  "CANCELLED"
+                ]
+              }
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Sent on or after (YYYY-MM-DD).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "Sent on or before (YYYY-MM-DD).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Project: Deliveries screen (incoming and outgoing, newest first).",
+        "tags": [
+          "project store"
+        ]
+      },
+      "post": {
+        "operationId": "ProjectStoreController_send",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send material back to the company store.",
+        "tags": [
+          "project store"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/deliveries/{id}": {
+      "get": {
+        "operationId": "ProjectStoreController_delivery",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "project store"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/deliveries/{id}/record": {
+      "post": {
+        "operationId": "ProjectStoreController_record",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record an incoming delivery: stock joins the project store.",
+        "tags": [
+          "project store"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/deliveries/{id}/reject": {
+      "post": {
+        "operationId": "ProjectStoreController_reject",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject an incoming delivery: stock returns to the company store.",
+        "tags": [
+          "project store"
+        ]
+      }
+    },
+    "/api/v1/projects/{projectCode}/deliveries/{id}/cancel": {
+      "post": {
+        "operationId": "ProjectStoreController_cancel",
+        "parameters": [
+          {
+            "name": "projectCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a return this project sent that is still in transit.",
+        "tags": [
+          "project store"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "SiteTrack API",
+    "description": "Backend for SiteTrack: projects, tasks, dependencies, members, materials and deliveries. Authenticate with POST /auth/login, send `Authorization: Bearer <accessToken>`, and refresh with POST /auth/refresh. See docs/API.md for response shapes and business rules.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "At least 8 characters.",
+            "minLength": 8,
+            "maxLength": 200
+          },
+          "role": {
+            "type": "string",
+            "description": "App role, chosen at registration.",
+            "enum": [
+              "USER",
+              "COMPANY_STORE_MANAGER",
+              "SUPER_ADMIN"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "role"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RefreshDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "plannedStart": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          },
+          "plannedEnd": {
+            "type": "string",
+            "description": "YYYY-MM-DD, on or after plannedStart"
+          }
+        },
+        "required": [
+          "name",
+          "plannedStart",
+          "plannedEnd"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "plannedStart": {
+            "type": "string"
+          },
+          "plannedEnd": {
+            "type": "string"
+          }
+        }
+      },
+      "SetAdminDto": {
+        "type": "object",
+        "properties": {
+          "isAdmin": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "isAdmin"
+        ]
+      },
+      "InviteDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "number",
+            "description": "Invite by user id ...",
+            "minimum": 1
+          },
+          "email": {
+            "type": "string",
+            "description": "... or by email.",
+            "format": "email"
+          }
+        }
+      },
+      "MarkReadDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "Invitation ids to mark as read. Omit to mark all as read.",
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "CreateTaskDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "plannedStart": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          },
+          "plannedEnd": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          },
+          "dependsOn": {
+            "description": "Codes of tasks (same project) this task waits on.",
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "plannedStart",
+          "plannedEnd"
+        ]
+      },
+      "UpdateTaskDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "plannedStart": {
+            "type": "string"
+          },
+          "plannedEnd": {
+            "type": "string"
+          }
+        }
+      },
+      "AddDependencyDto": {
+        "type": "object",
+        "properties": {
+          "dependsOn": {
+            "type": "string",
+            "description": "Code of the task that must be done first, e.g. PRJ-0042-T-0003."
+          }
+        },
+        "required": [
+          "dependsOn"
+        ]
+      },
+      "CreateMaterialDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "e.g. \"Cement, OPC 50 kg bag\"",
+            "maxLength": 200
+          },
+          "category": {
+            "type": "string",
+            "description": "e.g. \"Cement\"",
+            "maxLength": 100
+          },
+          "unit": {
+            "type": "string",
+            "description": "e.g. \"bag\"",
+            "maxLength": 30
+          }
+        },
+        "required": [
+          "name",
+          "category",
+          "unit"
+        ]
+      },
+      "UpdateMaterialDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 30
+          }
+        }
+      },
+      "LineDto": {
+        "type": "object",
+        "properties": {
+          "materialId": {
+            "type": "number",
+            "minimum": 1
+          },
+          "quantity": {
+            "type": "object",
+            "description": "Positive number with up to 3 decimals; send as string or number, e.g. \"12.5\"."
+          }
+        },
+        "required": [
+          "materialId",
+          "quantity"
+        ]
+      },
+      "LinesDto": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineDto"
+            }
+          }
+        },
+        "required": [
+          "lines"
+        ]
+      },
+      "ReorderPointDto": {
+        "type": "object",
+        "properties": {
+          "reorderPoint": {
+            "type": "object",
+            "description": ">= 0, up to 3 decimals."
+          }
+        },
+        "required": [
+          "reorderPoint"
+        ]
+      },
+      "CompanyDeliveryDto": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineDto"
+            }
+          },
+          "projectCode": {
+            "type": "string",
+            "description": "Destination project, e.g. PRJ-0042."
+          }
+        },
+        "required": [
+          "lines",
+          "projectCode"
+        ]
+      }
+    }
+  }
+}
