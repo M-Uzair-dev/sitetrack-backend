@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { AuthUser } from '../common/auth-user';
 import { likeEscape, pad4, paged, parseDate, todayStr, toDateStr } from '../common/util';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProjectGraph, Status } from '../tasks/project-graph';
 import { ProjectAccessService } from './project-access.service';
 import { CreateProjectDto, ListProjectsQueryDto, UpdateProjectDto } from './projects.dto';
 
@@ -163,19 +164,19 @@ export class ProjectsService {
     const ids = rows.map((r) => r.id);
     const blocked = new Map<number, number>();
     if (ids.length) {
-      const res = await this.prisma.$queryRaw<{ project_id: number; n: number }[]>`
-        WITH RECURSIVE waiting(task_id) AS (
-          SELECT d.task_id
-          FROM task_dependencies d JOIN tasks pre ON pre.id = d.depends_on_id
-          WHERE d.project_id = ANY(${ids}::int[]) AND pre.status <> 'DONE'
-          UNION
-          SELECT d.task_id FROM task_dependencies d JOIN waiting w ON d.depends_on_id = w.task_id
-        )
-        SELECT t.project_id, count(*)::int AS n
-        FROM waiting w JOIN tasks t ON t.id = w.task_id
-        WHERE t.status <> 'DONE'
-        GROUP BY t.project_id`;
-      res.forEach((r) => blocked.set(r.project_id, r.n));
+      // Load only (id, status) and edges for the page's projects and evaluate with the same graph
+      // rules the task screens use. Much faster than a recursive CTE over the dependency table.
+      const [tasks, edges] = await Promise.all([
+        this.prisma.$queryRaw<{ id: number; project_id: number; status: Status }[]>`
+          SELECT id, project_id, status::text AS status FROM tasks WHERE project_id = ANY(${ids}::int[])`,
+        this.prisma.$queryRaw<{ taskId: number; dependsOnId: number }[]>`
+          SELECT task_id AS "taskId", depends_on_id AS "dependsOnId" FROM task_dependencies WHERE project_id = ANY(${ids}::int[])`,
+      ]);
+      const g = new ProjectGraph(
+        tasks.map((t) => ({ id: t.id, code: String(t.id), name: '', status: t.status, plannedStart: '', plannedEnd: '' })),
+        edges,
+      );
+      for (const t of tasks) if (g.isBlocked(t.id)) blocked.set(t.project_id, (blocked.get(t.project_id) ?? 0) + 1);
     }
     return rows.map((r) => ({
       code: r.code,
