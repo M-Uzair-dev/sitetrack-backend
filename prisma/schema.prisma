@@ -1,0 +1,249 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppRole {
+  USER
+  COMPANY_STORE_MANAGER
+  SUPER_ADMIN
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum StoreKind {
+  COMPANY
+  PROJECT
+}
+
+enum DeliveryStatus {
+  IN_TRANSIT
+  DELIVERED
+  REJECTED
+  CANCELLED
+}
+
+enum DeliveryDirection {
+  TO_PROJECT
+  TO_COMPANY
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         AppRole
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  sessions            Session[]
+  memberships         ProjectMember[]
+  invitationsReceived Invitation[]    @relation("invitee")
+  invitationsSent     Invitation[]    @relation("inviter")
+  projectsCreated     Project[]
+  deliveriesSent      Delivery[]      @relation("sentBy")
+  deliveriesReceived  Delivery[]      @relation("receivedBy")
+  deliveriesCancelled Delivery[]      @relation("cancelledBy")
+
+  @@map("users")
+}
+
+model Session {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            Int       @map("user_id")
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash  String    @unique @map("refresh_token_hash")
+  previousTokenHash String?   @map("previous_token_hash")
+  expiresAt         DateTime  @map("expires_at")
+  revokedAt         DateTime? @map("revoked_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  lastUsedAt        DateTime  @default(now()) @map("last_used_at")
+
+  @@index([previousTokenHash])
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Project {
+  id             Int       @id @default(autoincrement())
+  number         Int       @unique
+  code           String    @unique
+  name           String
+  plannedStart   DateTime  @map("planned_start") @db.Date
+  plannedEnd     DateTime  @map("planned_end") @db.Date
+  nextTaskNumber Int       @default(1) @map("next_task_number")
+  createdById    Int       @map("created_by_id")
+  createdBy      User      @relation(fields: [createdById], references: [id])
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  members     ProjectMember[]
+  invitations Invitation[]
+  tasks       Task[]
+  store       Store?
+  deliveries  Delivery[]
+
+  @@map("projects")
+}
+
+model ProjectMember {
+  projectId Int      @map("project_id")
+  userId    Int      @map("user_id")
+  isAdmin   Boolean  @default(false) @map("is_admin")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+model Invitation {
+  id          Int              @id @default(autoincrement())
+  projectId   Int              @map("project_id")
+  inviteeId   Int              @map("invitee_id")
+  invitedById Int              @map("invited_by_id")
+  status      InvitationStatus @default(PENDING)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  respondedAt DateTime?        @map("responded_at")
+  readAt      DateTime?        @map("read_at")
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invitee     User             @relation("invitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  invitedBy   User             @relation("inviter", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([inviteeId, createdAt(sort: Desc)])
+  @@index([projectId, status])
+  @@map("invitations")
+}
+
+model Task {
+  id           Int        @id @default(autoincrement())
+  projectId    Int        @map("project_id")
+  number       Int
+  code         String     @unique
+  name         String
+  plannedStart DateTime   @map("planned_start") @db.Date
+  plannedEnd   DateTime   @map("planned_end") @db.Date
+  status       TaskStatus @default(NOT_STARTED)
+  startedAt    DateTime?  @map("started_at")
+  doneAt       DateTime?  @map("done_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @default(now()) @updatedAt @map("updated_at")
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  dependsOn  TaskDependency[] @relation("waiting")
+  dependents TaskDependency[] @relation("prerequisite")
+
+  @@unique([projectId, number])
+  @@index([projectId, status, plannedStart, plannedEnd])
+  @@map("tasks")
+}
+
+/// "task waits for dependsOn"
+model TaskDependency {
+  taskId      Int  @map("task_id")
+  dependsOnId Int  @map("depends_on_id")
+  projectId   Int  @map("project_id")
+  task        Task @relation("waiting", fields: [taskId], references: [id], onDelete: Cascade)
+  dependsOn   Task @relation("prerequisite", fields: [dependsOnId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, dependsOnId])
+  @@index([dependsOnId])
+  @@index([projectId])
+  @@map("task_dependencies")
+}
+
+model Material {
+  id        Int       @id @default(autoincrement())
+  name      String
+  category  String
+  unit      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  stock Stock[]
+  lines DeliveryLine[]
+
+  @@index([category])
+  @@map("materials")
+}
+
+model Store {
+  id        Int       @id @default(autoincrement())
+  kind      StoreKind
+  projectId Int?      @unique @map("project_id")
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  stock     Stock[]
+
+  @@map("stores")
+}
+
+model Stock {
+  storeId        Int       @map("store_id")
+  materialId     Int       @map("material_id")
+  quantity       Decimal   @default(0) @db.Decimal(14, 3)
+  reorderPoint   Decimal   @default(0) @map("reorder_point") @db.Decimal(14, 3)
+  /// company store only: quantity currently in transit to projects
+  inTransitOut   Decimal   @default(0) @map("in_transit_out") @db.Decimal(14, 3)
+  lastMovementAt DateTime? @map("last_movement_at")
+  store          Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  material       Material  @relation(fields: [materialId], references: [id])
+
+  @@id([storeId, materialId])
+  @@index([materialId])
+  @@map("stock")
+}
+
+model Delivery {
+  id            Int               @id @default(autoincrement())
+  direction     DeliveryDirection
+  status        DeliveryStatus    @default(IN_TRANSIT)
+  projectId     Int               @map("project_id")
+  sentById      Int               @map("sent_by_id")
+  sentAt        DateTime          @default(now()) @map("sent_at")
+  receivedById  Int?              @map("received_by_id")
+  receivedAt    DateTime?         @map("received_at")
+  cancelledById Int?              @map("cancelled_by_id")
+  cancelledAt   DateTime?         @map("cancelled_at")
+  project       Project           @relation(fields: [projectId], references: [id])
+  sentBy        User              @relation("sentBy", fields: [sentById], references: [id])
+  receivedBy    User?             @relation("receivedBy", fields: [receivedById], references: [id])
+  cancelledBy   User?             @relation("cancelledBy", fields: [cancelledById], references: [id])
+  lines         DeliveryLine[]
+
+  @@index([projectId, sentAt(sort: Desc)])
+  @@index([status, sentAt(sort: Desc)])
+  @@index([sentAt(sort: Desc)])
+  @@map("deliveries")
+}
+
+model DeliveryLine {
+  id         Int      @id @default(autoincrement())
+  deliveryId Int      @map("delivery_id")
+  materialId Int      @map("material_id")
+  quantity   Decimal  @db.Decimal(14, 3)
+  delivery   Delivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  material   Material @relation(fields: [materialId], references: [id])
+
+  @@unique([deliveryId, materialId])
+  @@index([materialId])
+  @@map("delivery_lines")
+}
